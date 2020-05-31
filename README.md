@@ -1,0 +1,2 @@
+# PASCAL_VOC_2007_Classifier
+Implementation of a PASCAL VOC classifier that classifies images from the PASCAL VOC 2007 dataset. The project has two implementations. The first uses normal learning and trains on the entire dataset. The second uses active learning to select the best dana to train on. Both implementations use a pretrained resnet-18 neural network model. The project also contains a module that draws a graph using matplotlib that displays the average precision of the two implementations on different dataset sizes.
