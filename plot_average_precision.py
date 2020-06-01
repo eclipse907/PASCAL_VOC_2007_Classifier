@@ -11,9 +11,17 @@ if __name__ == '__main__':
     plt.plot(entropy_sampling_data[0], entropy_sampling_data[1], "b-", label="entropy_sampling")
     num_of_data, random_sampling_average_precision = classifier_voc2007.main()
     plt.scatter(num_of_data, random_sampling_average_precision, color="k")
-    plt.xlabel("Number of samples trained on")
-    plt.ylabel("Average precision")
     plt.annotate("random_sampling", (num_of_data, random_sampling_average_precision), textcoords="offset points",
                  xytext=(0, 10), ha='center')
+    num_of_data, random_sampling_average_precision = classifier_voc2007.main()
+    plt.scatter(num_of_data, random_sampling_average_precision, color="k")
+    plt.annotate("random_sampling", (num_of_data, random_sampling_average_precision), textcoords="offset points",
+                 xytext=(0, 10), ha='center')
+    num_of_data, random_sampling_average_precision = classifier_voc2007.main()
+    plt.scatter(num_of_data, random_sampling_average_precision, color="k")
+    plt.annotate("random_sampling", (num_of_data, random_sampling_average_precision), textcoords="offset points",
+                 xytext=(0, 10), ha='center')
+    plt.xlabel("Number of samples trained on")
+    plt.ylabel("Average precision")
     plt.legend()
     plt.show()
