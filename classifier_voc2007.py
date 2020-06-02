@@ -78,10 +78,11 @@ def main():
             if index not in indexes:
                 indexes.append(index)
         train_dataset = CustomLabeledDataset(train_set, indexes)
-    batch_size = int(input("Enter desired batch size: "))
-    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True,
+    batch_size_train = int(input("Enter desired batch size for training: "))
+    batch_size_test = int(input("Enter desired batch size for validation: "))
+    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size_train, shuffle=True,
                                                pin_memory=True, num_workers=multiprocessing.cpu_count())
-    test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=10, pin_memory=True)
+    test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=batch_size_test, pin_memory=True)
 
     model = models.resnet18(pretrained=True)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
