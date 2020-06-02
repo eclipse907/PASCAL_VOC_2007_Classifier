@@ -39,7 +39,7 @@ def get_average_precision(y_true, y_scores):
     return scores
 
 
-def main():
+def main(num_of_data=None, batch_size_train=None, batch_size_test=None):
     directory = './data'
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Selected device: " + str(device))
@@ -68,7 +68,8 @@ def main():
                                       target_transform=create_label, download=True)
     test_set = datasets.VOCDetection(directory, year="2007", image_set="val", transform=transformations_test,
                                      target_transform=create_label, download=True)
-    num_of_data = int(input("Enter number of data to train on: "))
+    if not num_of_data:
+        num_of_data = int(input("Enter number of data to train on: "))
     if num_of_data == len(train_set):
         train_dataset = train_set
     else:
@@ -78,8 +79,10 @@ def main():
             if index not in indexes:
                 indexes.append(index)
         train_dataset = CustomLabeledDataset(train_set, indexes)
-    batch_size_train = int(input("Enter desired batch size for training: "))
-    batch_size_test = int(input("Enter desired batch size for validation: "))
+    if not batch_size_train:
+        batch_size_train = int(input("Enter desired batch size for training: "))
+    if not batch_size_test:
+        batch_size_test = int(input("Enter desired batch size for validation: "))
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size_train, shuffle=True,
                                                pin_memory=True, num_workers=multiprocessing.cpu_count())
     test_loader = torch.utils.data.DataLoader(dataset=test_set, batch_size=batch_size_test, pin_memory=True)
