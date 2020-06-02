@@ -209,17 +209,44 @@ def main(seed_size=None, train_batch_size=None, test_batch_size=None, num_of_dat
     ])
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, 12, eta_min=0, last_epoch=-1)
 
-    for data_labeled in labeled_loader:
-        inputs, labels = data_labeled[0].to(device), data_labeled[1].float().to(device)
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = loss_func(outputs, labels)
-        loss.backward()
-        optimizer.step()
-    scheduler.step()
     m = nn.Sigmoid()
     sizes_of_data = list()
     average_precisions = list()
+
+    print("Started training on initial seed.")
+    for epoch in range(15):
+        print("Started training in epoch %d." % (epoch + 1))
+        for data_labeled in labeled_loader:
+            inputs, labels = data_labeled[0].to(device), data_labeled[1].float().to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = loss_func(outputs, labels)
+            loss.backward()
+            optimizer.step()
+        scheduler.step()
+        print("Finished training in epoch %d." % (epoch + 1))
+    print("Finished training on initial seed.")
+    print("Evaluating model on train set.")
+    average_precision = 0.0
+    # average_loss = 0.0
+    with torch.no_grad():
+        for test_data in test_loader:
+            inputs, labels = test_data[0].to(device), test_data[1].float().to(device)
+            bs, ncrops, c, h, w = inputs.size()
+            outputs = model(inputs.view(-1, c, h, w))
+            outputs = outputs.view(bs, ncrops, -1).mean(1)
+            # average_loss += loss_func(outputs, labels).item()
+            average_precision += get_average_precision(torch.Tensor.cpu(labels).detach().numpy(),
+                                                       torch.Tensor.cpu(m(outputs)).detach().numpy())
+    average_precision = round(average_precision / len(test_set), 2)
+    # average_loss = average_loss / len(test_set)
+    sizes_of_data.append(len(labeled_dataset))
+    average_precisions.append(average_precision)
+    print("Evaluation complete.")
+    # print("Average precision of neural network on %d samples is: %.2f%%" % (len(labeled_dataset),
+    #                                                                         average_precision))
+    # print("Average loss of neural network on %d samples is: %f" % (len(labeled_dataset), average_loss))
+
     for iteration in range(10):
         print("Started training in iteration %d." % (iteration + 1))
         if len(unlabeled_dataset) > 0:
@@ -239,14 +266,14 @@ def main(seed_size=None, train_batch_size=None, test_batch_size=None, num_of_dat
         print("Finished training in iteration %d." % (iteration + 1))
         print("Evaluating model on train set.")
         average_precision = 0.0
-        average_loss = 0.0
+        # average_loss = 0.0
         with torch.no_grad():
             for test_data in test_loader:
                 inputs, labels = test_data[0].to(device), test_data[1].float().to(device)
                 bs, ncrops, c, h, w = inputs.size()
                 outputs = model(inputs.view(-1, c, h, w))
                 outputs = outputs.view(bs, ncrops, -1).mean(1)
-                average_loss += loss_func(outputs, labels).item()
+                # average_loss += loss_func(outputs, labels).item()
                 average_precision += get_average_precision(torch.Tensor.cpu(labels).detach().numpy(),
                                                            torch.Tensor.cpu(m(outputs)).detach().numpy())
         average_precision = round(average_precision / len(test_set), 2)
